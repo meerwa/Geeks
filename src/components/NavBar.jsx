@@ -21,11 +21,13 @@ const NavBar = () => {
         localStorage.removeItem("authToken"); 
         setIsLoggedIn(false);
         navigate("/login"); // ✅ Redirection vers login
+        console.log("loged");
       })
       .catch((error) =>
         console.error("Erreur lors de la déconnexion", error)
       );
   };
+
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">

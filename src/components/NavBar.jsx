@@ -1,27 +1,41 @@
 import React, { useState } from "react";
-import { FaBook } from "react-icons/fa"; // Import de l'icône Blogs
+import { Link } from "react-router-dom"; 
+import { FaBook } from "react-icons/fa"; 
+import { useNavigate } from "react-router-dom"; 
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Simule l'état connecté/déconnecté
+  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    fetch("http://localhost:8080/logout", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then(() => {
+        localStorage.removeItem("authToken"); 
+        setIsLoggedIn(false);
+        navigate("/login"); // ✅ Redirection vers login
+      })
+      .catch((error) =>
+        console.error("Erreur lors de la déconnexion", error)
+      );
   };
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
+        <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img src={require("../images/LOGO.jpg")} className="h-8" alt="Logo" />
           <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white text-blue-500">
             <i>BlogNews</i>
           </span>
-        </a>
+        </Link>
 
         {/* Bouton menu pour mobile */}
         <button
@@ -40,18 +54,29 @@ const NavBar = () => {
         {/* Menu */}
         <div className={`${isOpen ? "block" : "hidden"} w-full md:block md:w-auto`} id="navbar-default">
           <ul className="font-medium flex flex-col md:flex-row p-4 md:p-0 mt-4 md:mt-0 border border-gray-100 rounded-lg bg-gray-50 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 space-y-2 md:space-y-0 md:space-x-4">
-            {isLoggedIn ? (
+            {isLoggedIn && (
               <>
-                {/* Bouton Blogs avec icône */}
+                {/* Lien vers Actualités */}
                 <li>
-                  <a
-                    href="/blogs"
+                  <Link
+                    to="/Blogs"
                     className="flex items-center space-x-2 py-2 px-4 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
                   >
-                    <FaBook className="text-white" /> <span>Blogs</span>
-                  </a>
+                    <FaBook className="text-white" /> <span>Actualités</span>
+                  </Link>
                 </li>
-                {/* Bouton Déconnexion (Bleu) */}
+
+                {/* Lien vers Mes Blogs */}
+                <li>
+                  <Link
+                    to="/my-blogs"
+                    className="flex items-center space-x-2 py-2 px-4 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    <FaBook className="text-white" /> <span>Mes Blogs</span>
+                  </Link>
+                </li>
+
+                {/* Bouton Déconnexion */}
                 <li>
                   <button
                     onClick={handleLogout}
@@ -59,20 +84,6 @@ const NavBar = () => {
                   >
                     Déconnexion
                   </button>
-                </li>
-              </>
-            ) : (
-              <>
-                {/* Si l'utilisateur n'est pas connecté, afficher les boutons Connexion/S'inscrire */}
-                <li>
-                  <a href="/login" className="block py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                    Connexion
-                  </a>
-                </li>
-                <li>
-                  <a href="/register" className="block py-2 px-4 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    S'inscrire
-                  </a>
                 </li>
               </>
             )}
